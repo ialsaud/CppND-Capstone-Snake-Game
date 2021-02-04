@@ -26,7 +26,10 @@ void Game::Run(Controller const &controller, Renderer &renderer,
     controller.HandleInput(running, snake);
     Update();
     renderer.Render(snake, food);
-
+    // std::cout<<"game cycle "<<SDL_GetTicks()<<"\n"; 
+    if(!snake.alive){
+      return;
+    }
     frame_end = SDL_GetTicks();
 
     // Keep track of how long each loop through the input/update/render cycle
@@ -79,7 +82,7 @@ void Game::Update() {
     PlaceFood();
     // Grow snake and increase speed.
     snake.GrowBody();
-    snake.speed += 0.02;
+    snake.speed += 0.01;
   }
 }
 
