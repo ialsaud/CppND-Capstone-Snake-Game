@@ -6,6 +6,8 @@
 #include <unordered_map>
 #include "SDL.h"
 
+// custom tuple 
+// ref:https://stackoverflow.com/questions/17016175/c-unordered-map-using-a-custom-class-type-as-the-key
 class Hashed_Tuple {
   public:
   Hashed_Tuple(int x, int y) : _x(x), _y(y){}
@@ -18,6 +20,8 @@ class Hashed_Tuple {
   int _y;
 };
 
+// overrides default functions for the custom tuple
+// ref:https://stackoverflow.com/questions/17016175/c-unordered-map-using-a-custom-class-type-as-the-key
 namespace std {
 
   template <>
@@ -36,6 +40,11 @@ namespace std {
 
 }
 
+struct Bool_Default{
+  bool value = false;
+};
+
+
 class Food {
  public:
   Food(int grid_width, int grid_height)
@@ -47,20 +56,21 @@ class Food {
 
   void remove(int x, int y);
   void add();
+  // void add(int x, int y);
   bool foodCell(int x, int y);
+  bool foodCell(Hashed_Tuple tempt);
+
   int foodCount();
   std::size_t operator()(const std::tuple<int, int>& k) const;
-
+  std::vector<SDL_Point> cells;
 
  private:
   std::random_device dev;
   std::mt19937 engine;
   std::uniform_int_distribution<int> random_w;
   std::uniform_int_distribution<int> random_h;
-
-  int count=0;
-  std::vector<SDL_Point> cells;
-  std::unordered_map<Hashed_Tuple, bool> cellMap;
+  
+  std::unordered_map<Hashed_Tuple, Bool_Default> cellMap;
 
   int grid_width;
   int grid_height;

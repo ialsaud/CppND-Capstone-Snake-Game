@@ -2,12 +2,15 @@
 #include <iostream>
 #include "SDL.h"
 
+
 Game::Game(std::size_t grid_width, std::size_t grid_height)
     : snake(grid_width, grid_height),
+      foods(grid_height, grid_height),
       engine(dev()),
       random_w(0, static_cast<int>(grid_width)),
       random_h(0, static_cast<int>(grid_height)) {
-  PlaceFood();
+  // PlaceFood();
+  foods.add();
 }
 
 void Game::Run(Controller const &controller, Renderer &renderer,
@@ -25,7 +28,7 @@ void Game::Run(Controller const &controller, Renderer &renderer,
     // Input, Update, Render - the main game loop.
     controller.HandleInput(running, snake);
     Update();
-    renderer.Render(snake, food);
+    renderer.Render(snake, foods);
     // std::cout<<"game cycle "<<SDL_GetTicks()<<"\n"; 
     if(!snake.alive){
       return;
@@ -53,20 +56,19 @@ void Game::Run(Controller const &controller, Renderer &renderer,
   }
 }
 
-void Game::PlaceFood() {
-  int x, y;
-  while (true) {
-    x = random_w(engine);
-    y = random_h(engine);
-    // Check that the location is not occupied by a snake item before placing
-    // food.
-    if (!snake.SnakeCell(x, y)) {
-      food.x = x;
-      food.y = y;
-      return;
-    }
-  }
-}
+// void Game::PlaceFood() {
+//   int x, y;
+//   while (true) {
+//     x = random_w(engine);
+//     y = random_h(engine);
+//     // Check that the location is not occupied by a snake item before placing
+//     // food.
+//     if (!snake.SnakeCell(x, y)) {
+//       foods.add(x, y);
+//       return;
+//     }
+//   }
+// }
 
 void Game::Update() {
   if (!snake.alive) return;
@@ -75,15 +77,21 @@ void Game::Update() {
 
   int new_x = static_cast<int>(snake.head_x);
   int new_y = static_cast<int>(snake.head_y);
+  // std::cout << "game::update\n";
 
   // Check if there's food over here
-  if (food.x == new_x && food.y == new_y) {
+  if (foods.foodCell(new_x, new_y)) {
+    // std::cout << "food #" << foods.foodCount() <<" eaten\n";
     score++;
-    PlaceFood();
+    foods.remove(new_x, new_y);
+    foods.add();
     // Grow snake and increase speed.
     snake.GrowBody();
-    snake.speed += 0.01;
+    snake.speed += 0.0001;
   }
+
+  // std::cout << "game::update ends\n";
+  
 }
 
 int Game::GetScore() const { return score; }
